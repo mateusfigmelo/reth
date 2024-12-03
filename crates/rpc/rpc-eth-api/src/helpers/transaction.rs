@@ -183,7 +183,7 @@ pub trait EthTransactions: LoadTransaction<Provider: BlockReaderIdExt> {
                 None => return Ok(None),
             };
             let duration = start_time.elapsed();
-            debug!(target:"rpc_eth_receipt", load_transaction_and_receipt = %duration.as_secs());
+            debug!(target:"rpc_eth_receipt", load_transaction_and_receipt = %duration.as_millis());
             Ok(Some((tx, meta, receipt)))
         })
     }
