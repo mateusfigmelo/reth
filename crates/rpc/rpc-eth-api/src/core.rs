@@ -14,7 +14,7 @@ use alloy_rpc_types_eth::{
 use alloy_serde::JsonStorageKey;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
 use reth_rpc_server_types::{result::internal_rpc_err, ToRpcResult};
-use tracing::trace;
+use tracing::debug;
 
 use crate::{
     helpers::{EthApiSpec, EthBlocks, EthCall, EthFees, EthState, EthTransactions, FullEthApi},
@@ -373,13 +373,13 @@ where
 {
     /// Handler for: `eth_protocolVersion`
     async fn protocol_version(&self) -> RpcResult<U64> {
-        trace!(target: "rpc::eth", "Serving eth_protocolVersion");
+        debug!(target: "rpc::eth", "Serving eth_protocolVersion");
         EthApiSpec::protocol_version(self).await.to_rpc_result()
     }
 
     /// Handler for: `eth_syncing`
     fn syncing(&self) -> RpcResult<SyncStatus> {
-        trace!(target: "rpc::eth", "Serving eth_syncing");
+        debug!(target: "rpc::eth", "Serving eth_syncing");
         EthApiSpec::sync_status(self).to_rpc_result()
     }
 
@@ -390,13 +390,13 @@ where
 
     /// Handler for: `eth_accounts`
     fn accounts(&self) -> RpcResult<Vec<Address>> {
-        trace!(target: "rpc::eth", "Serving eth_accounts");
+        debug!(target: "rpc::eth", "Serving eth_accounts");
         Ok(EthApiSpec::accounts(self))
     }
 
     /// Handler for: `eth_blockNumber`
     fn block_number(&self) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", "Serving eth_blockNumber");
+        debug!(target: "rpc::eth", "Serving eth_blockNumber");
         Ok(U256::from(
             EthApiSpec::chain_info(self).with_message("failed to read chain info")?.best_number,
         ))
@@ -404,7 +404,7 @@ where
 
     /// Handler for: `eth_chainId`
     async fn chain_id(&self) -> RpcResult<Option<U64>> {
-        trace!(target: "rpc::eth", "Serving eth_chainId");
+        debug!(target: "rpc::eth", "Serving eth_chainId");
         Ok(Some(EthApiSpec::chain_id(self)))
     }
 
@@ -414,7 +414,7 @@ where
         hash: B256,
         full: bool,
     ) -> RpcResult<Option<RpcBlock<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?hash, ?full, "Serving eth_getBlockByHash");
+        debug!(target: "rpc::eth", ?hash, ?full, "Serving eth_getBlockByHash");
         Ok(EthBlocks::rpc_block(self, hash.into(), full).await?)
     }
 
@@ -424,13 +424,13 @@ where
         number: BlockNumberOrTag,
         full: bool,
     ) -> RpcResult<Option<RpcBlock<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?number, ?full, "Serving eth_getBlockByNumber");
+        debug!(target: "rpc::eth", ?number, ?full, "Serving eth_getBlockByNumber");
         Ok(EthBlocks::rpc_block(self, number.into(), full).await?)
     }
 
     /// Handler for: `eth_getBlockTransactionCountByHash`
     async fn block_transaction_count_by_hash(&self, hash: B256) -> RpcResult<Option<U256>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getBlockTransactionCountByHash");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getBlockTransactionCountByHash");
         Ok(EthBlocks::block_transaction_count(self, hash.into()).await?.map(U256::from))
     }
 
@@ -439,13 +439,13 @@ where
         &self,
         number: BlockNumberOrTag,
     ) -> RpcResult<Option<U256>> {
-        trace!(target: "rpc::eth", ?number, "Serving eth_getBlockTransactionCountByNumber");
+        debug!(target: "rpc::eth", ?number, "Serving eth_getBlockTransactionCountByNumber");
         Ok(EthBlocks::block_transaction_count(self, number.into()).await?.map(U256::from))
     }
 
     /// Handler for: `eth_getUncleCountByBlockHash`
     async fn block_uncles_count_by_hash(&self, hash: B256) -> RpcResult<Option<U256>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getUncleCountByBlockHash");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getUncleCountByBlockHash");
         Ok(EthBlocks::ommers(self, hash.into())?.map(|ommers| U256::from(ommers.len())))
     }
 
@@ -454,7 +454,7 @@ where
         &self,
         number: BlockNumberOrTag,
     ) -> RpcResult<Option<U256>> {
-        trace!(target: "rpc::eth", ?number, "Serving eth_getUncleCountByBlockNumber");
+        debug!(target: "rpc::eth", ?number, "Serving eth_getUncleCountByBlockNumber");
         Ok(EthBlocks::ommers(self, number.into())?.map(|ommers| U256::from(ommers.len())))
     }
 
@@ -463,7 +463,7 @@ where
         &self,
         block_id: BlockId,
     ) -> RpcResult<Option<Vec<RpcReceipt<T::NetworkTypes>>>> {
-        trace!(target: "rpc::eth", ?block_id, "Serving eth_getBlockReceipts");
+        debug!(target: "rpc::eth", ?block_id, "Serving eth_getBlockReceipts");
         Ok(EthBlocks::block_receipts(self, block_id).await?)
     }
 
@@ -473,7 +473,7 @@ where
         hash: B256,
         index: Index,
     ) -> RpcResult<Option<RpcBlock<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?hash, ?index, "Serving eth_getUncleByBlockHashAndIndex");
+        debug!(target: "rpc::eth", ?hash, ?index, "Serving eth_getUncleByBlockHashAndIndex");
         Ok(EthBlocks::ommer_by_block_and_index(self, hash.into(), index).await?)
     }
 
@@ -483,13 +483,13 @@ where
         number: BlockNumberOrTag,
         index: Index,
     ) -> RpcResult<Option<RpcBlock<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?number, ?index, "Serving eth_getUncleByBlockNumberAndIndex");
+        debug!(target: "rpc::eth", ?number, ?index, "Serving eth_getUncleByBlockNumberAndIndex");
         Ok(EthBlocks::ommer_by_block_and_index(self, number.into(), index).await?)
     }
 
     /// Handler for: `eth_getRawTransactionByHash`
     async fn raw_transaction_by_hash(&self, hash: B256) -> RpcResult<Option<Bytes>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getRawTransactionByHash");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getRawTransactionByHash");
         Ok(EthTransactions::raw_transaction_by_hash(self, hash).await?)
     }
 
@@ -498,7 +498,7 @@ where
         &self,
         hash: B256,
     ) -> RpcResult<Option<RpcTransaction<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getTransactionByHash");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getTransactionByHash");
         Ok(EthTransactions::transaction_by_hash(self, hash)
             .await?
             .map(|tx| tx.into_transaction(self.tx_resp_builder()))
@@ -511,7 +511,7 @@ where
         hash: B256,
         index: Index,
     ) -> RpcResult<Option<Bytes>> {
-        trace!(target: "rpc::eth", ?hash, ?index, "Serving eth_getRawTransactionByBlockHashAndIndex");
+        debug!(target: "rpc::eth", ?hash, ?index, "Serving eth_getRawTransactionByBlockHashAndIndex");
         Ok(EthTransactions::raw_transaction_by_block_and_tx_index(self, hash.into(), index.into())
             .await?)
     }
@@ -522,7 +522,7 @@ where
         hash: B256,
         index: Index,
     ) -> RpcResult<Option<RpcTransaction<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?hash, ?index, "Serving eth_getTransactionByBlockHashAndIndex");
+        debug!(target: "rpc::eth", ?hash, ?index, "Serving eth_getTransactionByBlockHashAndIndex");
         Ok(EthTransactions::transaction_by_block_and_tx_index(self, hash.into(), index.into())
             .await?)
     }
@@ -533,7 +533,7 @@ where
         number: BlockNumberOrTag,
         index: Index,
     ) -> RpcResult<Option<Bytes>> {
-        trace!(target: "rpc::eth", ?number, ?index, "Serving eth_getRawTransactionByBlockNumberAndIndex");
+        debug!(target: "rpc::eth", ?number, ?index, "Serving eth_getRawTransactionByBlockNumberAndIndex");
         Ok(EthTransactions::raw_transaction_by_block_and_tx_index(
             self,
             number.into(),
@@ -548,7 +548,7 @@ where
         number: BlockNumberOrTag,
         index: Index,
     ) -> RpcResult<Option<RpcTransaction<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?number, ?index, "Serving eth_getTransactionByBlockNumberAndIndex");
+        debug!(target: "rpc::eth", ?number, ?index, "Serving eth_getTransactionByBlockNumberAndIndex");
         Ok(EthTransactions::transaction_by_block_and_tx_index(self, number.into(), index.into())
             .await?)
     }
@@ -559,7 +559,7 @@ where
         sender: Address,
         nonce: U64,
     ) -> RpcResult<Option<RpcTransaction<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?sender, ?nonce, "Serving eth_getTransactionBySenderAndNonce");
+        debug!(target: "rpc::eth", ?sender, ?nonce, "Serving eth_getTransactionBySenderAndNonce");
         Ok(EthTransactions::get_transaction_by_sender_and_nonce(self, sender, nonce.to(), true)
             .await?)
     }
@@ -569,13 +569,13 @@ where
         &self,
         hash: B256,
     ) -> RpcResult<Option<RpcReceipt<T::NetworkTypes>>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getTransactionReceipt");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getTransactionReceipt");
         Ok(EthTransactions::transaction_receipt(self, hash).await?)
     }
 
     /// Handler for: `eth_getBalance`
     async fn balance(&self, address: Address, block_number: Option<BlockId>) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getBalance");
+        debug!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getBalance");
         Ok(EthState::balance(self, address, block_number).await?)
     }
 
@@ -586,7 +586,7 @@ where
         index: JsonStorageKey,
         block_number: Option<BlockId>,
     ) -> RpcResult<B256> {
-        trace!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getStorageAt");
+        debug!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getStorageAt");
         Ok(EthState::storage_at(self, address, index, block_number).await?)
     }
 
@@ -596,25 +596,25 @@ where
         address: Address,
         block_number: Option<BlockId>,
     ) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getTransactionCount");
+        debug!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getTransactionCount");
         Ok(EthState::transaction_count(self, address, block_number).await?)
     }
 
     /// Handler for: `eth_getCode`
     async fn get_code(&self, address: Address, block_number: Option<BlockId>) -> RpcResult<Bytes> {
-        trace!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getCode");
+        debug!(target: "rpc::eth", ?address, ?block_number, "Serving eth_getCode");
         Ok(EthState::get_code(self, address, block_number).await?)
     }
 
     /// Handler for: `eth_getHeaderByNumber`
     async fn header_by_number(&self, block_number: BlockNumberOrTag) -> RpcResult<Option<Header>> {
-        trace!(target: "rpc::eth", ?block_number, "Serving eth_getHeaderByNumber");
+        debug!(target: "rpc::eth", ?block_number, "Serving eth_getHeaderByNumber");
         Ok(EthBlocks::rpc_block_header(self, block_number.into()).await?)
     }
 
     /// Handler for: `eth_getHeaderByHash`
     async fn header_by_hash(&self, hash: B256) -> RpcResult<Option<Header>> {
-        trace!(target: "rpc::eth", ?hash, "Serving eth_getHeaderByHash");
+        debug!(target: "rpc::eth", ?hash, "Serving eth_getHeaderByHash");
         Ok(EthBlocks::rpc_block_header(self, hash.into()).await?)
     }
 
@@ -624,7 +624,7 @@ where
         payload: SimulatePayload,
         block_number: Option<BlockId>,
     ) -> RpcResult<Vec<SimulatedBlock<RpcBlock<T::NetworkTypes>>>> {
-        trace!(target: "rpc::eth", ?block_number, "Serving eth_simulateV1");
+        debug!(target: "rpc::eth", ?block_number, "Serving eth_simulateV1");
         Ok(EthCall::simulate_v1(self, payload, block_number).await?)
     }
 
@@ -636,7 +636,7 @@ where
         state_overrides: Option<StateOverride>,
         block_overrides: Option<Box<BlockOverrides>>,
     ) -> RpcResult<Bytes> {
-        trace!(target: "rpc::eth", ?request, ?block_number, ?state_overrides, ?block_overrides, "Serving eth_call");
+        debug!(target: "rpc::eth", ?request, ?block_number, ?state_overrides, ?block_overrides, "Serving eth_call");
         Ok(EthCall::call(
             self,
             request,
@@ -653,7 +653,7 @@ where
         state_context: Option<StateContext>,
         state_override: Option<StateOverride>,
     ) -> RpcResult<Vec<EthCallResponse>> {
-        trace!(target: "rpc::eth", ?bundle, ?state_context, ?state_override, "Serving eth_callMany");
+        debug!(target: "rpc::eth", ?bundle, ?state_context, ?state_override, "Serving eth_callMany");
         Ok(EthCall::call_many(self, bundle, state_context, state_override).await?)
     }
 
@@ -663,7 +663,7 @@ where
         request: TransactionRequest,
         block_number: Option<BlockId>,
     ) -> RpcResult<AccessListResult> {
-        trace!(target: "rpc::eth", ?request, ?block_number, "Serving eth_createAccessList");
+        debug!(target: "rpc::eth", ?request, ?block_number, "Serving eth_createAccessList");
         Ok(EthCall::create_access_list_at(self, request, block_number).await?)
     }
 
@@ -674,7 +674,7 @@ where
         block_number: Option<BlockId>,
         state_override: Option<StateOverride>,
     ) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", ?request, ?block_number, "Serving eth_estimateGas");
+        debug!(target: "rpc::eth", ?request, ?block_number, "Serving eth_estimateGas");
         Ok(EthCall::estimate_gas_at(
             self,
             request,
@@ -686,7 +686,7 @@ where
 
     /// Handler for: `eth_gasPrice`
     async fn gas_price(&self) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", "Serving eth_gasPrice");
+        debug!(target: "rpc::eth", "Serving eth_gasPrice");
         Ok(EthFees::gas_price(self).await?)
     }
 
@@ -696,19 +696,19 @@ where
         address: Address,
         block: BlockId,
     ) -> RpcResult<Option<alloy_rpc_types_eth::Account>> {
-        trace!(target: "rpc::eth", "Serving eth_getAccount");
+        debug!(target: "rpc::eth", "Serving eth_getAccount");
         Ok(EthState::get_account(self, address, block).await?)
     }
 
     /// Handler for: `eth_maxPriorityFeePerGas`
     async fn max_priority_fee_per_gas(&self) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", "Serving eth_maxPriorityFeePerGas");
+        debug!(target: "rpc::eth", "Serving eth_maxPriorityFeePerGas");
         Ok(EthFees::suggested_priority_fee(self).await?)
     }
 
     /// Handler for: `eth_blobBaseFee`
     async fn blob_base_fee(&self) -> RpcResult<U256> {
-        trace!(target: "rpc::eth", "Serving eth_blobBaseFee");
+        debug!(target: "rpc::eth", "Serving eth_blobBaseFee");
         Ok(EthFees::blob_base_fee(self).await?)
     }
 
@@ -727,7 +727,7 @@ where
         newest_block: BlockNumberOrTag,
         reward_percentiles: Option<Vec<f64>>,
     ) -> RpcResult<FeeHistory> {
-        trace!(target: "rpc::eth", ?block_count, ?newest_block, ?reward_percentiles, "Serving eth_feeHistory");
+        debug!(target: "rpc::eth", ?block_count, ?newest_block, ?reward_percentiles, "Serving eth_feeHistory");
         Ok(EthFees::fee_history(self, block_count.to(), newest_block, reward_percentiles).await?)
     }
 
@@ -763,31 +763,31 @@ where
 
     /// Handler for: `eth_sendTransaction`
     async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<B256> {
-        trace!(target: "rpc::eth", ?request, "Serving eth_sendTransaction");
+        debug!(target: "rpc::eth", ?request, "Serving eth_sendTransaction");
         Ok(EthTransactions::send_transaction(self, request).await?)
     }
 
     /// Handler for: `eth_sendRawTransaction`
     async fn send_raw_transaction(&self, tx: Bytes) -> RpcResult<B256> {
-        trace!(target: "rpc::eth", ?tx, "Serving eth_sendRawTransaction");
+        debug!(target: "rpc::eth", ?tx, "Serving eth_sendRawTransaction");
         Ok(EthTransactions::send_raw_transaction(self, tx).await?)
     }
 
     /// Handler for: `eth_sign`
     async fn sign(&self, address: Address, message: Bytes) -> RpcResult<Bytes> {
-        trace!(target: "rpc::eth", ?address, ?message, "Serving eth_sign");
+        debug!(target: "rpc::eth", ?address, ?message, "Serving eth_sign");
         Ok(EthTransactions::sign(self, address, message).await?)
     }
 
     /// Handler for: `eth_signTransaction`
     async fn sign_transaction(&self, request: TransactionRequest) -> RpcResult<Bytes> {
-        trace!(target: "rpc::eth", ?request, "Serving eth_signTransaction");
+        debug!(target: "rpc::eth", ?request, "Serving eth_signTransaction");
         Ok(EthTransactions::sign_transaction(self, request).await?)
     }
 
     /// Handler for: `eth_signTypedData`
     async fn sign_typed_data(&self, address: Address, data: TypedData) -> RpcResult<Bytes> {
-        trace!(target: "rpc::eth", ?address, ?data, "Serving eth_signTypedData");
+        debug!(target: "rpc::eth", ?address, ?data, "Serving eth_signTypedData");
         Ok(EthTransactions::sign_typed_data(self, &data, address)?)
     }
 
@@ -798,7 +798,7 @@ where
         keys: Vec<JsonStorageKey>,
         block_number: Option<BlockId>,
     ) -> RpcResult<EIP1186AccountProofResponse> {
-        trace!(target: "rpc::eth", ?address, ?keys, ?block_number, "Serving eth_getProof");
+        debug!(target: "rpc::eth", ?address, ?keys, ?block_number, "Serving eth_getProof");
         Ok(EthState::get_proof(self, address, keys, block_number)?.await?)
     }
 }
