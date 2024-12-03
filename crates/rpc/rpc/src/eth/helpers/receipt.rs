@@ -28,7 +28,7 @@ where
             .map_err(Self::Error::from_eth_err)?
             .ok_or(EthApiError::HeaderNotFound(hash.into()))?;
         let duration = start_time.elapsed();
-        debug!(target:"rpc_eth_receipt", build_transaction_receipt = duration.as_millis(), "time duration: ");
+        debug!(target:"rpc_eth_receipt", build_transaction_receipt = duration.as_secs_f64(), "time duration: ");
         Ok(EthReceiptBuilder::new(&tx, meta, &receipt, &all_receipts)?.build())
     }
 }
