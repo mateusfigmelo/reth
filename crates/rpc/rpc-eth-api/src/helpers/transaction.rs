@@ -28,6 +28,7 @@ use crate::{
     RpcNodeCore, RpcNodeCoreExt, RpcReceipt, RpcTransaction,
 };
 
+use tracing::debug;
 /// Transaction related functions for the [`EthApiServer`](crate::EthApiServer) trait in
 /// the `eth_` namespace.
 ///
@@ -168,6 +169,7 @@ pub trait EthTransactions: LoadTransaction<Provider: BlockReaderIdExt> {
     {
         let provider = self.provider().clone();
         self.spawn_blocking_io(move |_| {
+            let start_time = std::time::Instant::now();
             let (tx, meta) = match provider
                 .transaction_by_hash_with_meta(hash)
                 .map_err(Self::Error::from_eth_err)?
@@ -180,7 +182,8 @@ pub trait EthTransactions: LoadTransaction<Provider: BlockReaderIdExt> {
                 Some(recpt) => recpt,
                 None => return Ok(None),
             };
-
+            let duration = start_time.elapsed();
+            debug!(target:"rpc_eth_receipt", load_transaction_and_receipt = %duration.as_secs());
             Ok(Some((tx, meta, receipt)))
         })
     }
