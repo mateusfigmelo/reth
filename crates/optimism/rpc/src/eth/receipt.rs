@@ -30,7 +30,7 @@ where
         meta: TransactionMeta,
         receipt: Receipt,
     ) -> Result<RpcReceipt<Self::NetworkTypes>, Self::Error> {
-        let start_time = std::time::Instant();
+        let start_time = std::time::Instant::now();
         let (block, receipts) = self
             .cache()
             .get_block_and_receipts(meta.block_hash)
