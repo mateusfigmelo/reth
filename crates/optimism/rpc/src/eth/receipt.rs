@@ -44,7 +44,7 @@ where
             reth_optimism_evm::extract_l1_info(&block.body).map_err(OpEthApiError::from)?;
 
         let receipt_duration = start_time.elapsed();
-        debug!(target:"rpc_eth_receipt", receipt_duration);
+        debug!(target:"rpc_eth_receipt", receipt_duration_sec = %receipt_duration.as_secs());
         Ok(OpReceiptBuilder::new(
             &self.inner.provider().chain_spec(),
             &tx,
