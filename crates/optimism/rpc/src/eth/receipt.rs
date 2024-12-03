@@ -16,6 +16,7 @@ use reth_rpc_eth_api::{helpers::LoadReceipt, FromEthApiError, RpcReceipt};
 use reth_rpc_eth_types::{receipt::build_receipt, EthApiError};
 
 use crate::{OpEthApi, OpEthApiError};
+use tracing::debug;
 
 impl<N> LoadReceipt for OpEthApi<N>
 where
@@ -29,6 +30,7 @@ where
         meta: TransactionMeta,
         receipt: Receipt,
     ) -> Result<RpcReceipt<Self::NetworkTypes>, Self::Error> {
+        let start_time = std::time::Instant();
         let (block, receipts) = self
             .cache()
             .get_block_and_receipts(meta.block_hash)
@@ -41,6 +43,8 @@ where
         let l1_block_info =
             reth_optimism_evm::extract_l1_info(&block.body).map_err(OpEthApiError::from)?;
 
+        let receipt_duration = start_time.elapsed();
+        debug!(target:"rpc_eth_receipt", receipt_duration);
         Ok(OpReceiptBuilder::new(
             &self.inner.provider().chain_spec(),
             &tx,
