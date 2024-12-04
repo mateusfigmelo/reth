@@ -203,6 +203,7 @@ impl OpReceiptBuilder {
         all_receipts: &[Receipt],
         l1_block_info: revm::L1BlockInfo,
     ) -> Result<Self, OpEthApiError> {
+        let start_time = std::time::Instant::now();
         let timestamp = meta.timestamp;
         let core_receipt =
             build_receipt(transaction, meta, receipt, all_receipts, |receipt_with_bloom| {
@@ -233,7 +234,8 @@ impl OpReceiptBuilder {
             .deposit_nonce(receipt.deposit_nonce)
             .deposit_version(receipt.deposit_receipt_version)
             .build();
-
+        let duration = start_time.elapsed().as_secs_f64();
+        debug!(target:"rpc_eth_receipt", op_receipt_builer_new = duration, "time_duration");
         Ok(Self { core_receipt, op_receipt_fields })
     }
 
