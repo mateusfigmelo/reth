@@ -6,7 +6,6 @@ use reth_rpc_eth_api::{helpers::LoadReceipt, FromEthApiError, RpcNodeCoreExt, Rp
 use reth_rpc_eth_types::{EthApiError, EthReceiptBuilder};
 
 use crate::EthApi;
-use tracing::debug;
 
 impl<Provider, Pool, Network, EvmConfig> LoadReceipt for EthApi<Provider, Pool, Network, EvmConfig>
 where
@@ -18,7 +17,7 @@ where
         meta: TransactionMeta,
         receipt: Receipt,
     ) -> Result<RpcReceipt<Self::NetworkTypes>, Self::Error> {
-        let start_time = std::time::Instant::now();
+        // let start_time = std::time::Instant::now();
         let hash = meta.block_hash;
         // get all receipts for the block
         let all_receipts = self
@@ -27,8 +26,8 @@ where
             .await
             .map_err(Self::Error::from_eth_err)?
             .ok_or(EthApiError::HeaderNotFound(hash.into()))?;
-        let duration = start_time.elapsed();
-        debug!(target:"rpc_eth_receipt", build_transaction_receipt = duration.as_secs_f64(), "time duration: ");
+        // let duration = start_time.elapsed();
+        // debug!(target:"rpc_eth_receipt", build_transaction_receipt = duration.as_secs_f64(), "time duration: ");
         Ok(EthReceiptBuilder::new(&tx, meta, &receipt, &all_receipts)?.build())
     }
 }

@@ -16,7 +16,6 @@ use reth_rpc_eth_api::{helpers::LoadReceipt, FromEthApiError, RpcReceipt};
 use reth_rpc_eth_types::{receipt::build_receipt, EthApiError};
 
 use crate::{OpEthApi, OpEthApiError};
-use tracing::debug;
 
 impl<N> LoadReceipt for OpEthApi<N>
 where
@@ -30,7 +29,7 @@ where
         meta: TransactionMeta,
         receipt: Receipt,
     ) -> Result<RpcReceipt<Self::NetworkTypes>, Self::Error> {
-        let start_time = std::time::Instant::now();
+        // let start_time = std::time::Instant::now();
         let (block, receipts) = self
             .cache()
             .get_block_and_receipts(meta.block_hash)
@@ -43,8 +42,8 @@ where
         let l1_block_info =
             reth_optimism_evm::extract_l1_info(&block.body).map_err(OpEthApiError::from)?;
 
-        let receipt_duration = start_time.elapsed();
-        debug!(target:"rpc_eth_receipt", build_transaction_receipt_before = receipt_duration.as_secs_f64(), "time duration: ");
+        // let receipt_duration = start_time.elapsed();
+        // debug!(target:"rpc_eth_receipt", build_transaction_receipt_before = receipt_duration.as_secs_f64(), "time duration: ");
         Ok(OpReceiptBuilder::new(
             &self.inner.provider().chain_spec(),
             &tx,
@@ -203,7 +202,7 @@ impl OpReceiptBuilder {
         all_receipts: &[Receipt],
         l1_block_info: revm::L1BlockInfo,
     ) -> Result<Self, OpEthApiError> {
-        let start_time = std::time::Instant::now();
+        // let start_time = std::time::Instant::now();
         let timestamp = meta.timestamp;
         let core_receipt =
             build_receipt(transaction, meta, receipt, all_receipts, |receipt_with_bloom| {
@@ -234,8 +233,8 @@ impl OpReceiptBuilder {
             .deposit_nonce(receipt.deposit_nonce)
             .deposit_version(receipt.deposit_receipt_version)
             .build();
-        let duration = start_time.elapsed().as_secs_f64();
-        debug!(target:"rpc_eth_receipt", op_receipt_builer_new = duration, "time_duration");
+        // let duration = start_time.elapsed().as_secs_f64();
+        // debug!(target:"rpc_eth_receipt", op_receipt_builer_new = duration, "time_duration");
         Ok(Self { core_receipt, op_receipt_fields })
     }
 

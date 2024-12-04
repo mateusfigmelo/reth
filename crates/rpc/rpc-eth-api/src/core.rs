@@ -570,7 +570,11 @@ where
         hash: B256,
     ) -> RpcResult<Option<RpcReceipt<T::NetworkTypes>>> {
         debug!(target: "rpc::eth", ?hash, "Serving eth_getTransactionReceipt");
-        Ok(EthTransactions::transaction_receipt(self, hash).await?)
+        let start_time = std::time::Instant::now();
+        let res = EthTransactions::transaction_receipt(self, hash).await?;
+        let duration = start_time.elapsed().as_secs_f64();
+        debug!(target: "rpc_eth_getTransactionReceiptDuration", receipt_duration=duration);
+        Ok(res)
     }
 
     /// Handler for: `eth_getBalance`
