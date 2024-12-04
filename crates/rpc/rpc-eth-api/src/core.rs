@@ -573,7 +573,7 @@ where
         let start_time = std::time::Instant::now();
         let res = EthTransactions::transaction_receipt(self, hash).await?;
         let duration = start_time.elapsed().as_secs_f64();
-        debug!(target: "rpc_eth_getTransactionReceiptDuration", receipt_duration=duration);
+        debug!(target: "transaction_lifecycle", get_trasnaction_receipt_duration=duration);
         Ok(res)
     }
 
@@ -774,7 +774,11 @@ where
     /// Handler for: `eth_sendRawTransaction`
     async fn send_raw_transaction(&self, tx: Bytes) -> RpcResult<B256> {
         debug!(target: "rpc::eth", ?tx, "Serving eth_sendRawTransaction");
-        Ok(EthTransactions::send_raw_transaction(self, tx).await?)
+        let start_time = std::time::Instant::now();
+        let res = EthTransactions::send_raw_transaction(self, tx).await?;
+        let duration = start_time.elapsed().as_secs_f64();
+        debug!(target: "transaction_lifecycle", send_raw_transaction_duration=duration);
+        Ok(res)
     }
 
     /// Handler for: `eth_sign`
