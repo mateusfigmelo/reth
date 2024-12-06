@@ -396,10 +396,9 @@ where
 
     /// Handler for: `eth_blockNumber`
     fn block_number(&self) -> RpcResult<U256> {
-        debug!(target: "rpc::eth", "Serving eth_blockNumber");
-        Ok(U256::from(
-            EthApiSpec::chain_info(self).with_message("failed to read chain info")?.best_number,
-        ))
+        let number =  EthApiSpec::chain_info(self).with_message("failed to read chain info")?.best_number;
+        debug!(target: "rpc::eth", block_number=number.clone(), "Serving eth_blockNumber");
+        Ok(U256::from(number))
     }
 
     /// Handler for: `eth_chainId`
