@@ -38,6 +38,7 @@ use std::{
     sync::Arc,
 };
 use tracing::trace;
+use tracing::debug;
 
 /// Type that interacts with a snapshot view of the blockchain (storage and in-memory) at time of
 /// instantiation, EXCEPT for pending, safe and finalized block which might change while holding
@@ -1088,6 +1089,7 @@ impl<N: ProviderNodeTypes> ReceiptProvider for ConsistentProvider<N> {
 
     fn receipt_by_hash(&self, hash: TxHash) -> ProviderResult<Option<Receipt>> {
         for block_state in self.head_block.iter().flat_map(|b| b.chain()) {
+            debug!(target: "ABCD", "Calling Receipt_by_hash_function");
             let executed_block = block_state.block_ref();
             let block = executed_block.block();
             let receipts = block_state.executed_block_receipts();
