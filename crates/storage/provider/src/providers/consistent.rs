@@ -42,6 +42,7 @@ use std::{
     sync::Arc,
 };
 use tracing::trace;
+use tracing::debug;
 
 /// Type that interacts with a snapshot view of the blockchain (storage and in-memory) at time of
 /// instantiation, EXCEPT for pending, safe and finalized block which might change while holding
@@ -1056,7 +1057,8 @@ impl<N: ProviderNodeTypes> ReceiptProvider for ConsistentProvider<N> {
             let executed_block = block_state.block_ref();
             let block = executed_block.block();
             let receipts = block_state.executed_block_receipts();
-
+            debug!(target: "ABCD", "Calling Receipt_by_hash_function");
+            
             // assuming 1:1 correspondence between transactions and receipts
             debug_assert_eq!(
                 block.body.transactions().len(),
