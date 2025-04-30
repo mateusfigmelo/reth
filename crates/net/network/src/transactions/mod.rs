@@ -1322,7 +1322,7 @@ where
                 let tx_manager_info_pending_pool_imports =
                     self.pending_pool_imports_info.pending_pool_imports.clone();
 
-                trace!(target: "net::tx::propagation", new_txs_len=?new_txs.len(), "Importing new transactions");
+                debug!(target: "net::tx::propagation", new_txs_len=?new_txs.len(), "Importing new transactions");
                 let import = Box::pin(async move {
                     let added = new_txs.len();
                     let res = pool.add_external_transactions(new_txs).await;
