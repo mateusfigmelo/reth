@@ -1297,9 +1297,9 @@ where
                         } else {
                             // this is a new transaction that should be imported into the pool
 
-                            let pool_transaction = Pool::Transaction::from_pooled(tx);
+                            let pool_transaction = Pool::Transaction::from_pooled(tx.clone());
                             new_txs.push(pool_transaction);
-
+                            debug!(target: "net::tx::propagation", tx_hash=?*tx.tx_hash(), "Importing new transaction");
                             entry.insert(HashSet::from([peer_id]));
                         }
                     }
@@ -1322,7 +1322,7 @@ where
                 let tx_manager_info_pending_pool_imports =
                     self.pending_pool_imports_info.pending_pool_imports.clone();
 
-                debug!(target: "net::tx::propagation", new_txs_len=?new_txs.len(), "Importing new transactions");
+                trace!(target: "net::tx::propagation", new_txs_len=?new_txs.len(), "Importing new transactions");
                 let import = Box::pin(async move {
                     let added = new_txs.len();
                     let res = pool.add_external_transactions(new_txs).await;
