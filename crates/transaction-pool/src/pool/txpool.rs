@@ -624,6 +624,7 @@ impl<T: TransactionOrdering> TxPool<T> {
         on_chain_nonce: u64,
     ) -> PoolResult<AddedTransaction<T::Transaction>> {
         if self.contains(tx.hash()) {
+            debug!("Transaction already in pool {:?}", tx.hash());
             return Err(PoolError::new(*tx.hash(), PoolErrorKind::AlreadyImported))
         }
 
